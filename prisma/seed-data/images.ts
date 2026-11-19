@@ -1,0 +1,94 @@
+/**
+ * Free photos from Unsplash (https://unsplash.com/license), served from the Unsplash CDN.
+ * Each one was checked to resolve and to match its category.
+ * Replace them with your own photos any time: upload through the API and they go to Cloudinary.
+ */
+const unsplash = (id: string) => ({
+  url: `https://images.unsplash.com/photo-${id}?w=1600&q=80&auto=format&fit=crop`,
+  publicId: `external:unsplash-${id}`,
+});
+
+export const IMAGES = {
+  apartmentExterior: [
+    "1545324418-cc1a3fa10c00",
+    "1460317442991-0ec209397118",
+    "1515263487990-61b07816b324",
+    "1574362848149-11496d93a7c7",
+    "1493246318656-5bfd4cfb29b8",
+  ].map(unsplash),
+  houseExterior: [
+    "1568605114967-8130f3a36994",
+    "1570129477492-45c003edd2be",
+    "1564013799919-ab600027ffc6",
+    "1512917774080-9991f1c4c750",
+    "1600596542815-ffad4c1539a9",
+    "1600585154340-be6161a56a0c",
+    "1600566753190-17f0baa2a6c3",
+    "1613490493576-7fde63acd811",
+    "1580587771525-78b9dba3b914",
+    "1605276374104-dee2a0ed3cd6",
+    "1449844908441-8829872d2607",
+    "1523217582562-09d0def993a6",
+    "1576941089067-2de3c901e126",
+    "1567496898669-ee935f5f647a",
+    "1416331108676-a22ccb276e35",
+    "1464146072230-91cabc968266",
+    "1599809275671-b5942cabc7a2",
+    "1602343168117-bb8ffe3e2e9f",
+    "1513584684374-8bab748fbf90",
+    "1430285561322-7808604715df",
+    "1494526585095-c41746248156",
+    "1600047509807-ba8f99d2cdde",
+    "1600585154526-990dced4db0d",
+    "1625602812206-5ec545ca1231",
+    "1582268611958-ebfd161ef9cf",
+    "1558036117-15d82a90b9b1",
+    "1592595896551-12b371d546d5",
+    "1628624747186-a941c476b7ef",
+  ].map(unsplash),
+  livingRoom: [
+    "1502672260266-1c1ef2d93688",
+    "1522708323590-d24dbb6b0267",
+    "1560448204-e02f11c3d0e2",
+    "1493809842364-78817add7ffb",
+    "1586023492125-27b2c045efd7",
+    "1600607687939-ce8a6c25118c",
+    "1600210492486-724fe5c67fb0",
+    "1554995207-c18c203602cb",
+    "1604014237800-1c9102c219da",
+    "1501183638710-841dd1904471",
+    "1600573472550-8090b5e0745e",
+    "1600566753086-00f18fb6b3ea",
+    "1618221195710-dd6b41faaea6",
+    "1631679706909-1844bbd07221",
+  ].map(unsplash),
+  bedroom: [
+    "1595526114035-0d45ed16cfbf",
+    "1505693416388-ac5ce068fe85",
+    "1540518614846-7eded433c457",
+    "1512918728675-ed5a9ecdebfd",
+    "1616594039964-ae9021a400a0",
+    "1496417263034-38ec4f0b665a",
+  ].map(unsplash),
+  kitchen: ["1484154218962-a197022b5858"].map(unsplash),
+  bathroom: ["1552321554-5fefe8c9ef14", "1584622650111-993a426fbf0a"].map(unsplash),
+  office: [
+    "1486406146926-c627a92ad1ab",
+    "1497366216548-37526070297c",
+    "1497366811353-6870744d04b2",
+    "1524758631624-e2822e304c36",
+    "1497215842964-222b430dc094",
+    "1504297050568-910d24c426d3",
+  ].map(unsplash),
+  retail: ["1441986300917-64674bd600d8"].map(unsplash),
+  land: [
+    "1500382017468-9049fed747ef",
+    "1500076656116-558758c991c1",
+    "1501854140801-50d01698950b",
+    "1465146344425-f00d5f5c8f07",
+    "1625246333195-78d9c38ad449",
+    "1444858291040-58f756a3bdd6",
+  ].map(unsplash),
+};
+
+export type TImage = ReturnType<typeof unsplash>;

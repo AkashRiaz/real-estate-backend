@@ -1,0 +1,2339 @@
+{
+  "info": {
+    "name": "EstateHub Real Estate API",
+    "description": "All EstateHub endpoints. Run Auth → Login first; it stores {{accessToken}} automatically. Set the path variables (id, propertyId, ...) before calling endpoints that need them.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api/v1"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "id",
+      "value": ""
+    },
+    {
+      "key": "idOrSlug",
+      "value": ""
+    },
+    {
+      "key": "propertyId",
+      "value": ""
+    },
+    {
+      "key": "paymentId",
+      "value": ""
+    },
+    {
+      "key": "slug",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /auth/register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Role: Public\n\nCreate a USER or AGENT account. Sets auth cookies and returns tokens. Rate-limited.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rafi Ahmed\",\n  \"email\": \"rafi@example.com\",\n  \"password\": \"Strong@123\",\n  \"phone\": \"01812345678\",\n  \"role\": \"AGENT\",\n  \"agencyName\": \"Ahmed Realty\",\n  \"licenseNumber\": \"REHAB-DHK-2024-0101\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Role: Public\n\nEmail + password login. Rate-limited.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@estatehub.test\",\n  \"password\": \"User@12345\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.data && body.data.accessToken) {",
+                  "  pm.collectionVariables.set('accessToken', body.data.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /auth/google",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/google",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "google"
+              ]
+            },
+            "description": "Role: Public\n\nGoogle sign-in with a Google ID token (needs GOOGLE_CLIENT_ID).",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idToken\": \"<google-id-token>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/refresh-token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh-token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh-token"
+              ]
+            },
+            "description": "Role: Public\n\nRotates the refresh token (from the `refreshToken` cookie or body). Reusing an old token revokes every session.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"<optional if cookie is sent>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Role: Public\n\nRevokes the refresh token and clears cookies.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /auth/me",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Role: Any logged-in\n\nCurrent user with agent profile."
+          }
+        },
+        {
+          "name": "POST /auth/change-password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/change-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "change-password"
+              ]
+            },
+            "description": "Role: Any logged-in\n\nChanges the password, signs out other sessions and returns fresh tokens.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"User@12345\",\n  \"newPassword\": \"NewPass@2026\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/forgot-password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "description": "Role: Public\n\nEmails a 6-digit OTP (valid 5 minutes). Same response whether or not the email exists.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@estatehub.test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /auth/reset-password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
+            },
+            "description": "Role: Public\n\nResets the password with the OTP. 5 wrong attempts invalidate the code.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@estatehub.test\",\n  \"otp\": \"123456\",\n  \"newPassword\": \"NewPass@2026\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "PATCH /users/me",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            },
+            "description": "Role: Any logged-in\n\nUpdate own profile. multipart/form-data: `profileImage` (file, optional) + `data` (JSON).",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "data",
+                  "value": "{\n  \"name\": \"Nusrat Jahan\",\n  \"phone\": \"01912345678\",\n  \"removeImage\": false\n}",
+                  "type": "text"
+                },
+                {
+                  "key": "profileImage",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "GET /users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            },
+            "description": "Role: ADMIN\n\nList users.\n\nQuery: searchTerm, role, status, page, limit, sortBy, sortOrder"
+          }
+        },
+        {
+          "name": "GET /users/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{id}}"
+              ]
+            },
+            "description": "Role: ADMIN\n\nUser details with activity counts."
+          }
+        },
+        {
+          "name": "PATCH /users/:id/status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{id}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{id}}",
+                "status"
+              ]
+            },
+            "description": "Role: ADMIN\n\nBlock or unblock (blocking signs the user out everywhere).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"BLOCKED\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /users/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{id}}"
+              ]
+            },
+            "description": "Role: ADMIN\n\nSoft-delete a user (an agent's listings are hidden too)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Agents",
+      "item": [
+        {
+          "name": "GET /agents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/agents",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "agents"
+              ]
+            },
+            "description": "Role: Public\n\nActive agents with listing counts.\n\nQuery: searchTerm, area, isVerified, sortBy (rating|experience|listings|createdAt|name), sortOrder, page, limit",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /agents/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/agents/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "agents",
+                "{{id}}"
+              ]
+            },
+            "description": "Role: Public\n\nAgent profile, latest 8 listings, closed deals and rating breakdown.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "PATCH /agents/me",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/agents/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "agents",
+                "me"
+              ]
+            },
+            "description": "Role: AGENT\n\nUpdate own agency profile.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agencyName\": \"Hasan Properties Ltd.\",\n  \"bio\": \"Residential specialist in Gulshan and Banani.\",\n  \"experienceYears\": 9,\n  \"serviceAreas\": [\n    \"Gulshan\",\n    \"Banani\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /agents/:id/verify",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/agents/{{id}}/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "agents",
+                "{{id}}",
+                "verify"
+              ]
+            },
+            "description": "Role: ADMIN\n\nVerify or un-verify an agent.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isVerified\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Properties",
+      "item": [
+        {
+          "name": "GET /properties",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/properties?type=APARTMENT&purpose=RENT&city=Dhaka&bedrooms=3&sortBy=price&sortOrder=asc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "properties"
+              ]
+            },
+            "description": "Role: Public\n\nSearch approved listings. `bedrooms`/`bathrooms` mean \"at least\"; `amenities` is comma-separated (must have all); `fields` limits returned fields (e.g. `title,price,images`).\n\nQuery: searchTerm, type, purpose, status, furnishing, division, city, area, minPrice, maxPrice, minArea, maxArea, bedrooms, bathrooms, amenities, isFeatured, agentId, fields, page, limit, sortBy (price|createdAt|areaSqft|avgRating|views|bedrooms), sortOrder",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /properties/filter-options",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/properties/filter-options",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "properties",
+                "filter-options"
+              ]
+            },
+            "description": "Role: Public\n\nDivisions/cities with counts, type counts, price and area range (for filter UIs).",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /properties/my-properties",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/properties/my-properties",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "properties",
+                "my-properties"
+              ]
+            },
+            "description": "Role: AGENT, ADMIN\n\nOwn listings in every approval state, with inquiry/viewing/favorite counts.\n\nQuery: same filters as public search + approvalStatus"
+          }
+        },
+        {
+          "name": "GET /properties/admin/all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/properties/admin/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "properties",
+                "admin",
+                "all"
+              ]
+            },
+            "description": "Role: ADMIN\n\nAll listings for moderation.\n\nQuery: same filters + approvalStatus"
+          }
+        },
+        {
+          "name": "GET /properties/:idOrSlug",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/properties/{{idOrSlug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "properties",
+                "{{idOrSlug}}"
+              ]
+            },
+            "description": "Role: Public (optional auth)\n\nListing details with gallery, agent and `isFavorited`. Pending/rejected listings are visible only to their agent and admins. Increments views."
+          }
+        },
+        {
+          "name": "GET /properties/:id/related",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/properties/{{id}}/related",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "properties",
+                "{{id}}",
+                "related"
+              ]
+            },
+            "description": "Role: Public\n\nUp to 4 similar listings (same type, same city first).",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "POST /properties",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/properties",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "properties"
+              ]
+            },
+            "description": "Role: AGENT, ADMIN\n\nCreate a listing. multipart/form-data: `images` (1–10 files, JPG/PNG/WEBP/AVIF, 5 MB each) + `data` (JSON). Agent listings start as PENDING approval.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "data",
+                  "value": "{\n  \"title\": \"Lake-view 3 bed apartment in Gulshan 2\",\n  \"description\": \"South-facing 3 bedroom apartment on the 7th floor overlooking Gulshan Lake, with two balconies, a fitted kitchen and full generator backup.\",\n  \"type\": \"APARTMENT\",\n  \"purpose\": \"SALE\",\n  \"price\": 52000000,\n  \"bookingFee\": 200000,\n  \"areaSqft\": 2600,\n  \"bedrooms\": 3,\n  \"bathrooms\": 4,\n  \"division\": \"Dhaka\",\n  \"city\": \"Dhaka\",\n  \"area\": \"Gulshan\",\n  \"address\": \"Road 53, Gulshan 2, Dhaka 1212\",\n  \"latitude\": 23.7956,\n  \"longitude\": 90.4141,\n  \"amenities\": [\n    \"Lift\",\n    \"Generator Backup\",\n    \"Lake View\"\n  ],\n  \"furnishing\": \"SEMI_FURNISHED\",\n  \"yearBuilt\": 2021,\n  \"floor\": 7,\n  \"parkingSpaces\": 2\n}",
+                  "type": "text"
+                },
+                {
+                  "key": "images",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "images",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /properties/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/properties/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "properties",
+                "{{id}}"
+              ]
+            },
+            "description": "Role: Owner AGENT, ADMIN\n\nUpdate a listing. multipart: new `images` + `data` (any create field, plus `removeImageIds[]`, `coverImageId`). Content edits by an agent send the listing back to review.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "data",
+                  "value": "{\n  \"price\": 50000000,\n  \"removeImageIds\": [],\n  \"coverImageId\": \"<image-uuid>\"\n}",
+                  "type": "text"
+                },
+                {
+                  "key": "images",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /properties/:id/status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/properties/{{id}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "properties",
+                "{{id}}",
+                "status"
+              ]
+            },
+            "description": "Role: Owner AGENT, ADMIN\n\nMarket status. SOLD only for SALE, RENTED only for RENT.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"SOLD\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /properties/:id/approval",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/properties/{{id}}/approval",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "properties",
+                "{{id}}",
+                "approval"
+              ]
+            },
+            "description": "Role: ADMIN\n\nApprove or reject (a reason is required to reject). Notifies the agent by in-app notification and email.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"approvalStatus\": \"REJECTED\",\n  \"rejectionReason\": \"Please add photos of the actual unit and the building approval.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /properties/:id/featured",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/properties/{{id}}/featured",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "properties",
+                "{{id}}",
+                "featured"
+              ]
+            },
+            "description": "Role: ADMIN\n\nFeature an approved listing on the home page.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isFeatured\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /properties/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/properties/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "properties",
+                "{{id}}"
+              ]
+            },
+            "description": "Role: Owner AGENT, ADMIN\n\nSoft delete. Agents cannot delete a listing with a confirmed booking."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Favorites",
+      "item": [
+        {
+          "name": "GET /favorites",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/favorites",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "favorites"
+              ]
+            },
+            "description": "Role: USER\n\nSaved listings.\n\nQuery: page, limit"
+          }
+        },
+        {
+          "name": "GET /favorites/ids",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/favorites/ids",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "favorites",
+                "ids"
+              ]
+            },
+            "description": "Role: USER\n\nIDs of saved properties (for heart icons)."
+          }
+        },
+        {
+          "name": "POST /favorites",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/favorites",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "favorites"
+              ]
+            },
+            "description": "Role: USER\n\nSave a listing (idempotent).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"<property-uuid>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /favorites/:propertyId",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/favorites/{{propertyId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "favorites",
+                "{{propertyId}}"
+              ]
+            },
+            "description": "Role: USER\n\nRemove from favorites."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inquiries",
+      "item": [
+        {
+          "name": "POST /inquiries",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/inquiries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "inquiries"
+              ]
+            },
+            "description": "Role: USER\n\nMessage the listing agent (one open inquiry per property). Agent gets an in-app notification and email.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"<property-uuid>\",\n  \"subject\": \"Is the price negotiable?\",\n  \"message\": \"We can pay in full within 60 days. Is there any room on the price?\",\n  \"phone\": \"01912345678\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /inquiries/my",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/inquiries/my",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "inquiries",
+                "my"
+              ]
+            },
+            "description": "Role: USER\n\nMy inquiries.\n\nQuery: searchTerm, status, propertyId, page, limit, sortBy, sortOrder"
+          }
+        },
+        {
+          "name": "GET /inquiries/agent",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/inquiries/agent",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "inquiries",
+                "agent"
+              ]
+            },
+            "description": "Role: AGENT\n\nInquiries for my listings.\n\nQuery: searchTerm, status, propertyId, page, limit, sortBy, sortOrder"
+          }
+        },
+        {
+          "name": "GET /inquiries",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/inquiries",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "inquiries"
+              ]
+            },
+            "description": "Role: ADMIN\n\nAll inquiries.\n\nQuery: searchTerm, status, propertyId, page, limit, sortBy, sortOrder"
+          }
+        },
+        {
+          "name": "GET /inquiries/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/inquiries/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "inquiries",
+                "{{id}}"
+              ]
+            },
+            "description": "Role: Participant, ADMIN\n\nInquiry with the full reply thread."
+          }
+        },
+        {
+          "name": "POST /inquiries/:id/replies",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/inquiries/{{id}}/replies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "inquiries",
+                "{{id}}",
+                "replies"
+              ]
+            },
+            "description": "Role: Buyer or agent\n\nReply. The first agent reply moves NEW to IN_PROGRESS, and a buyer reply reopens RESOLVED.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Yes, the owner can offer a 2% discount for a quick cash deal.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /inquiries/:id/status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/inquiries/{{id}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "inquiries",
+                "{{id}}",
+                "status"
+              ]
+            },
+            "description": "Role: Listing AGENT, ADMIN\n\nChange status.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"RESOLVED\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Viewings",
+      "item": [
+        {
+          "name": "POST /viewings",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/viewings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "viewings"
+              ]
+            },
+            "description": "Role: USER\n\nRequest a viewing (at least 1 hour ahead, within 60 days, one active request per property). Agent is notified.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"<property-uuid>\",\n  \"scheduledAt\": \"2026-12-05T11:00:00.000Z\",\n  \"message\": \"Evening works better for us.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /viewings/my",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/viewings/my",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "viewings",
+                "my"
+              ]
+            },
+            "description": "Role: USER\n\nMy viewings.\n\nQuery: status, upcoming=true, searchTerm, page, limit, sortBy, sortOrder"
+          }
+        },
+        {
+          "name": "GET /viewings/agent",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/viewings/agent",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "viewings",
+                "agent"
+              ]
+            },
+            "description": "Role: AGENT\n\nViewing requests for my listings.\n\nQuery: status, upcoming=true, searchTerm, page, limit, sortBy, sortOrder"
+          }
+        },
+        {
+          "name": "GET /viewings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/viewings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "viewings"
+              ]
+            },
+            "description": "Role: ADMIN\n\nAll viewings.\n\nQuery: status, upcoming, searchTerm, page, limit, sortBy, sortOrder"
+          }
+        },
+        {
+          "name": "PATCH /viewings/:id/status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/viewings/{{id}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "viewings",
+                "{{id}}",
+                "status"
+              ]
+            },
+            "description": "Role: Listing AGENT, ADMIN\n\nAPPROVED / REJECTED (from PENDING or RESCHEDULED) or COMPLETED (after the time has passed). The user gets an in-app notification and email.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"APPROVED\",\n  \"agentNote\": \"Please call me from the gate.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /viewings/:id/reschedule",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/viewings/{{id}}/reschedule",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "viewings",
+                "{{id}}",
+                "reschedule"
+              ]
+            },
+            "description": "Role: Listing AGENT, ADMIN\n\nPropose a new time (status becomes RESCHEDULED). The user is notified.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scheduledAt\": \"2026-12-07T09:00:00.000Z\",\n  \"agentNote\": \"The owner is only available on Saturday.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /viewings/:id/cancel",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/viewings/{{id}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "viewings",
+                "{{id}}",
+                "cancel"
+              ]
+            },
+            "description": "Role: Buyer or agent\n\nCancel an active viewing. The other side is notified.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"We found another place.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "GET /reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reviews",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reviews"
+              ]
+            },
+            "description": "Role: Public\n\nVisible reviews for one property OR one agent. meta has averageRating and totalReviews.\n\nQuery: propertyId | agentId, page, limit, sortBy (createdAt|rating), sortOrder",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /reviews/testimonials",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reviews/testimonials",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reviews",
+                "testimonials"
+              ]
+            },
+            "description": "Role: Public\n\nTop 6 agent reviews (4★+) for the home page.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /reviews/my",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reviews/my",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reviews",
+                "my"
+              ]
+            },
+            "description": "Role: USER\n\nMy reviews.\n\nQuery: page, limit, sortBy, sortOrder"
+          }
+        },
+        {
+          "name": "GET /reviews/all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reviews/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reviews",
+                "all"
+              ]
+            },
+            "description": "Role: ADMIN\n\nAll reviews for moderation.\n\nQuery: target, rating, isHidden, searchTerm, page, limit, sortBy, sortOrder"
+          }
+        },
+        {
+          "name": "POST /reviews",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reviews",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reviews"
+              ]
+            },
+            "description": "Role: USER\n\nReview a property or an agent. Requires a prior inquiry, viewing or booking. One review per target. Ratings are recalculated in the same transaction.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"target\": \"AGENT\",\n  \"agentId\": \"<agent-user-uuid>\",\n  \"rating\": 5,\n  \"comment\": \"Answered every question within an hour and arranged a Saturday viewing.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /reviews/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reviews/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reviews",
+                "{{id}}"
+              ]
+            },
+            "description": "Role: Author\n\nEdit own review.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 4,\n  \"comment\": \"Updated after moving in: the generator handles every outage.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /reviews/:id/visibility",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reviews/{{id}}/visibility",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reviews",
+                "{{id}}",
+                "visibility"
+              ]
+            },
+            "description": "Role: ADMIN\n\nHide or show (hidden reviews do not count in ratings).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isHidden\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /reviews/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reviews/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reviews",
+                "{{id}}"
+              ]
+            },
+            "description": "Role: Author, ADMIN\n\nDelete a review."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "item": [
+        {
+          "name": "POST /bookings",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings"
+              ]
+            },
+            "description": "Role: USER\n\nBook an AVAILABLE property (amount = the listing's bookingFee). Status PENDING_PAYMENT; unpaid bookings auto-cancel after 1 hour.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"<property-uuid>\",\n  \"note\": \"We would like to move in on 1 January.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /bookings/my",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/my",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings",
+                "my"
+              ]
+            },
+            "description": "Role: USER\n\nMy bookings with payments.\n\nQuery: status, searchTerm, page, limit, sortBy, sortOrder"
+          }
+        },
+        {
+          "name": "GET /bookings/agent",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/agent",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings",
+                "agent"
+              ]
+            },
+            "description": "Role: AGENT\n\nBookings on my listings.\n\nQuery: status, searchTerm, page, limit, sortBy, sortOrder"
+          }
+        },
+        {
+          "name": "GET /bookings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings"
+              ]
+            },
+            "description": "Role: ADMIN\n\nAll bookings.\n\nQuery: status, searchTerm, page, limit, sortBy, sortOrder"
+          }
+        },
+        {
+          "name": "GET /bookings/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings",
+                "{{id}}"
+              ]
+            },
+            "description": "Role: Buyer, agent, ADMIN\n\nBooking details."
+          }
+        },
+        {
+          "name": "PATCH /bookings/:id/cancel",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/{{id}}/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "bookings",
+                "{{id}}",
+                "cancel"
+              ]
+            },
+            "description": "Role: USER (unpaid only), ADMIN\n\nCancel. When an admin cancels a confirmed booking, the property becomes AVAILABLE again.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Plans changed.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments (bKash)",
+      "item": [
+        {
+          "name": "POST /payments/bkash/create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/payments/bkash/create",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "bkash",
+                "create"
+              ]
+            },
+            "description": "Role: USER\n\nStart bKash checkout for a PENDING_PAYMENT booking. Redirect the browser to `paymentURL`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookingId\": \"<booking-uuid>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /payments/bkash/callback",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/bkash/callback",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "bkash",
+                "callback"
+              ]
+            },
+            "description": "Role: bKash redirect\n\nExecutes the payment. On success one DB transaction marks the payment SUCCESS, confirms the booking, sets the property to PENDING and cancels other unpaid bookings for it. The user and agent are notified and the user is emailed. Redirects to `FRONTEND_URL/payment/success|failed|cancelled?transactionId=`.\n\nQuery: paymentID, status (success|failure|cancel)",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /payments/my-payments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/my-payments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "my-payments"
+              ]
+            },
+            "description": "Role: USER\n\nMy payment history (meta.totalPaid).\n\nQuery: status, searchTerm, sortBy (createdAt|amount|paidAt), sortOrder, page, limit"
+          }
+        },
+        {
+          "name": "GET /payments/agent-payments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/agent-payments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "agent-payments"
+              ]
+            },
+            "description": "Role: AGENT\n\nPayments for my listings (meta.totalPaid).\n\nQuery: same as above"
+          }
+        },
+        {
+          "name": "GET /payments/all-payments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/all-payments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "all-payments"
+              ]
+            },
+            "description": "Role: ADMIN\n\nAll transactions (meta.totalPaid).\n\nQuery: same as above"
+          }
+        },
+        {
+          "name": "GET /payments/:paymentId",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/{{paymentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "{{paymentId}}"
+              ]
+            },
+            "description": "Role: Payer, agent, ADMIN\n\nPayment details."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "GET /notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications"
+              ]
+            },
+            "description": "Role: Any logged-in\n\nMy notifications (meta.unreadCount).\n\nQuery: isRead, page, limit"
+          }
+        },
+        {
+          "name": "PATCH /notifications/read-all",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/read-all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "read-all"
+              ]
+            },
+            "description": "Role: Any logged-in\n\nMark all as read."
+          }
+        },
+        {
+          "name": "PATCH /notifications/:id/read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/{{id}}/read",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "{{id}}",
+                "read"
+              ]
+            },
+            "description": "Role: Any logged-in\n\nMark one as read."
+          }
+        },
+        {
+          "name": "DELETE /notifications/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "{{id}}"
+              ]
+            },
+            "description": "Role: Any logged-in\n\nDelete one."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contact",
+      "item": [
+        {
+          "name": "POST /contacts",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contacts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contacts"
+              ]
+            },
+            "description": "Role: Public\n\nContact form (stored in the database, rate-limited).",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rumana Akter\",\n  \"email\": \"rumana@example.com\",\n  \"phone\": \"01811223344\",\n  \"subject\": \"Listing my flat in Mirpur DOHS\",\n  \"message\": \"Could one of your agents call me to discuss the valuation of my flat?\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /contacts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/contacts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contacts"
+              ]
+            },
+            "description": "Role: ADMIN\n\nMessages (meta.unreadCount).\n\nQuery: status, searchTerm, page, limit, sortBy, sortOrder"
+          }
+        },
+        {
+          "name": "PATCH /contacts/:id/status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contacts/{{id}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contacts",
+                "{{id}}",
+                "status"
+              ]
+            },
+            "description": "Role: ADMIN\n\nNEW / READ / RESOLVED.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"RESOLVED\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /contacts/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/contacts/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contacts",
+                "{{id}}"
+              ]
+            },
+            "description": "Role: ADMIN\n\nDelete a message."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Newsletter",
+      "item": [
+        {
+          "name": "POST /newsletter/subscribe",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/newsletter/subscribe",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "newsletter",
+                "subscribe"
+              ]
+            },
+            "description": "Role: Public\n\nSubscribe (201 new, 200 already subscribed). Rate-limited.",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"investor@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /newsletter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/newsletter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "newsletter"
+              ]
+            },
+            "description": "Role: ADMIN\n\nSubscribers.\n\nQuery: searchTerm, page, limit, sortOrder"
+          }
+        },
+        {
+          "name": "DELETE /newsletter/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/newsletter/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "newsletter",
+                "{{id}}"
+              ]
+            },
+            "description": "Role: ADMIN\n\nRemove a subscriber."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Blog",
+      "item": [
+        {
+          "name": "GET /blogs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/blogs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "blogs"
+              ]
+            },
+            "description": "Role: Public\n\nPublished articles (without content).\n\nQuery: searchTerm, category, page, limit, sortBy, sortOrder",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /blogs/categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/blogs/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "blogs",
+                "categories"
+              ]
+            },
+            "description": "Role: Public\n\nCategories with article counts.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /blogs/admin/all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/blogs/admin/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "blogs",
+                "admin",
+                "all"
+              ]
+            },
+            "description": "Role: ADMIN\n\nAll posts including drafts.\n\nQuery: searchTerm, category, isPublished, page, limit, sortBy, sortOrder"
+          }
+        },
+        {
+          "name": "GET /blogs/admin/:id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/blogs/admin/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "blogs",
+                "admin",
+                "{{id}}"
+              ]
+            },
+            "description": "Role: ADMIN\n\nAny post (drafts included) with full content, for the edit form."
+          }
+        },
+        {
+          "name": "GET /blogs/:slug",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/blogs/{{slug}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "blogs",
+                "{{slug}}"
+              ]
+            },
+            "description": "Role: Public\n\nA published article with up to 3 related posts.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "POST /blogs",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/blogs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "blogs"
+              ]
+            },
+            "description": "Role: ADMIN\n\nCreate. multipart: `coverImage` (file) + `data` (JSON). Category is one of: Buying Guide, Renting Tips, Market Insights, Legal & Documentation, Home Finance, Neighbourhood Guide.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "data",
+                  "value": "{\n  \"title\": \"Checklist before you buy a flat in Dhaka\",\n  \"excerpt\": \"Ten documents to verify before paying any advance for an apartment in Dhaka.\",\n  \"content\": \"<at least 300 characters>\",\n  \"category\": \"Buying Guide\",\n  \"isPublished\": true\n}",
+                  "type": "text"
+                },
+                {
+                  "key": "coverImage",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "PATCH /blogs/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/blogs/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "blogs",
+                "{{id}}"
+              ]
+            },
+            "description": "Role: ADMIN\n\nUpdate (multipart, same fields optional).",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "data",
+                  "value": "{\n  \"isPublished\": true\n}",
+                  "type": "text"
+                },
+                {
+                  "key": "coverImage",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "DELETE /blogs/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/blogs/{{id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "blogs",
+                "{{id}}"
+              ]
+            },
+            "description": "Role: ADMIN\n\nDelete a post."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "GET /dashboard/public-stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/public-stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard",
+                "public-stats"
+              ]
+            },
+            "description": "Role: Public\n\nHome page statistics: available listings, verified agents, cities, closed deals, happy clients, counts per type, top cities.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "GET /dashboard/admin",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/admin",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard",
+                "admin"
+              ]
+            },
+            "description": "Role: ADMIN\n\nTotals; charts: monthlyRevenue (line), monthlyGrowth listings+signups (bar), propertiesByType (pie), propertiesByApproval, bookingsByStatus; recent pending listings and payments."
+          }
+        },
+        {
+          "name": "GET /dashboard/agent",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/agent",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard",
+                "agent"
+              ]
+            },
+            "description": "Role: AGENT\n\nTotals; charts: listingsByStatus (pie), monthlyActivity inquiries+viewings (bar), monthlyEarnings (line), topViewedListings; recent inquiries."
+          }
+        },
+        {
+          "name": "GET /dashboard/user",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/user",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboard",
+                "user"
+              ]
+            },
+            "description": "Role: USER\n\nTotals; charts: monthlySpending (line), viewingsByStatus and inquiriesByStatus (pie); upcoming viewings and recent bookings."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+model User {
+  id String @id @default(uuid())
+
+  name String
+
+  email String @unique
+
+  password String?
+
+  phone String?
+
+  googleId String? @unique
+
+  authProvider AuthProvider @default(CREDENTIALS)
+
+  role Role @default(USER)
+
+  status UserStatus @default(ACTIVE)
+
+  imageUrl String?
+
+  imagePublicId String?
+
+  isDeleted Boolean @default(false)
+
+  deletedAt DateTime?
+
+  lastLoginAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  agentProfile AgentProfile?
+
+  refreshTokens RefreshToken[]
+
+  properties Property[] @relation("AgentProperties")
+
+  favorites Favorite[]
+
+  sentInquiries Inquiry[] @relation("InquirySender")
+
+  receivedInquiries Inquiry[] @relation("InquiryAgent")
+
+  inquiryReplies InquiryReply[]
+
+  viewings Viewing[] @relation("ViewingUser")
+
+  agentViewings Viewing[] @relation("ViewingAgent")
+
+  bookings Booking[] @relation("BookingUser")
+
+  agentBookings Booking[] @relation("BookingAgent")
+
+  payments Payment[]
+
+  writtenReviews Review[] @relation("ReviewAuthor")
+
+  agentReviews Review[] @relation("ReviewAgent")
+
+  notifications Notification[]
+
+  blogPosts BlogPost[]
+
+  @@index([role])
+  @@index([status])
+  @@index([isDeleted])
+  @@map("users")
+}
+
+model AgentProfile {
+  id String @id @default(uuid())
+
+  userId String @unique
+
+  agencyName String
+
+  licenseNumber String?
+
+  bio String?
+
+  experienceYears Int @default(0)
+
+  serviceAreas String[]
+
+  isVerified Boolean @default(false)
+
+  avgRating Float @default(0)
+
+  totalReviews Int @default(0)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([isVerified])
+  @@index([avgRating])
+  @@map("agent_profiles")
+}
+
+model RefreshToken {
+  id String @id @default(uuid())
+
+  tokenHash String @unique
+
+  userId String
+
+  expiresAt DateTime
+
+  revokedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}

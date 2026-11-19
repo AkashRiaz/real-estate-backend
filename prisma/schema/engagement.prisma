@@ -1,0 +1,153 @@
+model Inquiry {
+  id String @id @default(uuid())
+
+  propertyId String
+
+  userId String
+
+  agentId String
+
+  subject String
+
+  message String
+
+  phone String?
+
+  status InquiryStatus @default(NEW)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  user User @relation("InquirySender", fields: [userId], references: [id], onDelete: Cascade)
+
+  agent User @relation("InquiryAgent", fields: [agentId], references: [id], onDelete: Cascade)
+
+  replies InquiryReply[]
+
+  @@index([propertyId])
+  @@index([userId])
+  @@index([agentId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("inquiries")
+}
+
+model InquiryReply {
+  id String @id @default(uuid())
+
+  inquiryId String
+
+  senderId String
+
+  message String
+
+  createdAt DateTime @default(now())
+
+  inquiry Inquiry @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+
+  sender User @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([inquiryId])
+  @@map("inquiry_replies")
+}
+
+model Viewing {
+  id String @id @default(uuid())
+
+  propertyId String
+
+  userId String
+
+  agentId String
+
+  scheduledAt DateTime
+
+  message String?
+
+  agentNote String?
+
+  cancelReason String?
+
+  cancelledById String?
+
+  status ViewingStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  user User @relation("ViewingUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  agent User @relation("ViewingAgent", fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@index([userId])
+  @@index([agentId])
+  @@index([status])
+  @@index([scheduledAt])
+  @@map("viewings")
+}
+
+model Review {
+  id String @id @default(uuid())
+
+  target ReviewTarget
+
+  rating Int
+
+  comment String
+
+  isHidden Boolean @default(false)
+
+  userId String
+
+  propertyId String?
+
+  agentId String?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  user User @relation("ReviewAuthor", fields: [userId], references: [id], onDelete: Cascade)
+
+  property Property? @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  agent User? @relation("ReviewAgent", fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, propertyId])
+  @@unique([userId, agentId])
+  @@index([propertyId])
+  @@index([agentId])
+  @@index([rating])
+  @@map("reviews")
+}
+
+model Notification {
+  id String @id @default(uuid())
+
+  userId String
+
+  type NotificationType
+
+  title String
+
+  message String
+
+  link String?
+
+  isRead Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}

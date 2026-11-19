@@ -1,0 +1,101 @@
+enum Role {
+  USER
+  AGENT
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+}
+
+enum AuthProvider {
+  CREDENTIALS
+  GOOGLE
+}
+
+enum PropertyType {
+  APARTMENT
+  HOUSE
+  LAND
+  COMMERCIAL
+}
+
+enum PropertyPurpose {
+  SALE
+  RENT
+}
+
+enum PropertyStatus {
+  AVAILABLE
+  PENDING
+  SOLD
+  RENTED
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum FurnishingStatus {
+  FURNISHED
+  SEMI_FURNISHED
+  UNFURNISHED
+}
+
+enum InquiryStatus {
+  NEW
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum ViewingStatus {
+  PENDING
+  APPROVED
+  RESCHEDULED
+  REJECTED
+  CANCELLED
+  COMPLETED
+}
+
+enum BookingStatus {
+  PENDING_PAYMENT
+  CONFIRMED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  SUCCESS
+  FAILED
+  CANCELLED
+}
+
+enum PaymentGateway {
+  BKASH
+}
+
+enum ReviewTarget {
+  PROPERTY
+  AGENT
+}
+
+enum NotificationType {
+  INQUIRY_RECEIVED
+  INQUIRY_REPLIED
+  VIEWING_REQUESTED
+  VIEWING_STATUS_CHANGED
+  BOOKING_CONFIRMED
+  PAYMENT_SUCCESS
+  PROPERTY_APPROVAL
+}
+
+enum ContactStatus {
+  NEW
+  READ
+  RESOLVED
+}

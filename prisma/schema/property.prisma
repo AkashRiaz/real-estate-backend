@@ -1,0 +1,137 @@
+model Property {
+  id String @id @default(uuid())
+
+  title String
+
+  slug String @unique
+
+  description String
+
+  type PropertyType
+
+  purpose PropertyPurpose
+
+  price Decimal @db.Decimal(14, 2)
+
+  bookingFee Decimal @db.Decimal(12, 2)
+
+  areaSqft Int
+
+  bedrooms Int @default(0)
+
+  bathrooms Int @default(0)
+
+  division String
+
+  city String
+
+  area String
+
+  address String
+
+  latitude Float?
+
+  longitude Float?
+
+  amenities String[]
+
+  furnishing FurnishingStatus @default(UNFURNISHED)
+
+  yearBuilt Int?
+
+  floor Int?
+
+  parkingSpaces Int @default(0)
+
+  status PropertyStatus @default(AVAILABLE)
+
+  approvalStatus ApprovalStatus @default(PENDING)
+
+  rejectionReason String?
+
+  isFeatured Boolean @default(false)
+
+  views Int @default(0)
+
+  avgRating Float @default(0)
+
+  totalReviews Int @default(0)
+
+  isDeleted Boolean @default(false)
+
+  deletedAt DateTime?
+
+  agentId String
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  agent User @relation("AgentProperties", fields: [agentId], references: [id])
+
+  images PropertyImage[]
+
+  favorites Favorite[]
+
+  inquiries Inquiry[]
+
+  viewings Viewing[]
+
+  bookings Booking[]
+
+  reviews Review[]
+
+  @@index([type])
+  @@index([purpose])
+  @@index([price])
+  @@index([division])
+  @@index([city])
+  @@index([area])
+  @@index([bedrooms])
+  @@index([status])
+  @@index([approvalStatus])
+  @@index([isFeatured])
+  @@index([agentId])
+  @@index([createdAt])
+  @@index([approvalStatus, isDeleted, type, purpose])
+  @@map("properties")
+}
+
+model PropertyImage {
+  id String @id @default(uuid())
+
+  propertyId String
+
+  url String
+
+  publicId String
+
+  isCover Boolean @default(false)
+
+  sortOrder Int @default(0)
+
+  createdAt DateTime @default(now())
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+  @@map("property_images")
+}
+
+model Favorite {
+  id String @id @default(uuid())
+
+  userId String
+
+  propertyId String
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, propertyId])
+  @@index([propertyId])
+  @@map("favorites")
+}
